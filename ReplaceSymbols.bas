@@ -6,35 +6,35 @@ Sub ReplaceGreekFontWithTimesNewRoman()
     Dim replacementCount As Integer
     Dim i As Long
     
-    ' Таблица соответствия символов Greek -> греческие символы Times New Roman
+    ' Таблица соответствия символов Greek -> Unicode коды
     Dim greekMap As Object
     Set greekMap = CreateObject("Scripting.Dictionary")
     
-    ' Соответствие символов
-    greekMap("g") = "γ"  ' gamma
-    greekMap("d") = "δ"  ' delta
-    greekMap("e") = "ε"  ' epsilon
-    greekMap("z") = "ζ"  ' zeta
-    greekMap("h") = "η"  ' eta
-    greekMap("q") = "θ"  ' theta
-    greekMap("i") = "ι"  ' iota
-    greekMap("k") = "κ"  ' kappa
-    greekMap("l") = "λ"  ' lambda
-    greekMap("m") = "μ"  ' mu
-    greekMap("n") = "ν"  ' nu
-    greekMap("x") = "ξ"  ' xi
-    greekMap("o") = "ο"  ' omicron
-    greekMap("p") = "π"  ' pi
-    greekMap("r") = "ρ"  ' rho
-    greekMap("s") = "σ"  ' sigma
-    greekMap("t") = "τ"  ' tau
-    greekMap("u") = "υ"  ' upsilon
-    greekMap("f") = "φ"  ' phi
-    greekMap("c") = "χ"  ' chi
-    greekMap("y") = "ψ"  ' psi
-    greekMap("w") = "ω"  ' omega
-    greekMap("a") = "α"  ' alpha
-    greekMap("b") = "β"  ' beta
+    ' Соответствие: латинская буква -> Unicode код греческой буквы
+    greekMap("a") = 945   ' α (alpha) U+03B1
+    greekMap("b") = 946   ' β (beta) U+03B2
+    greekMap("g") = 947   ' γ (gamma) U+03B3
+    greekMap("d") = 948   ' δ (delta) U+03B4
+    greekMap("e") = 949   ' ε (epsilon) U+03B5
+    greekMap("z") = 950   ' ζ (zeta) U+03B6
+    greekMap("h") = 951   ' η (eta) U+03B7
+    greekMap("q") = 952   ' θ (theta) U+03B8
+    greekMap("i") = 953   ' ι (iota) U+03B9
+    greekMap("k") = 954   ' κ (kappa) U+03BA
+    greekMap("l") = 955   ' λ (lambda) U+03BB
+    greekMap("m") = 956   ' μ (mu) U+03BC
+    greekMap("n") = 957   ' ν (nu) U+03BD
+    greekMap("x") = 958   ' ξ (xi) U+03BE
+    greekMap("o") = 959   ' ο (omicron) U+03BF
+    greekMap("p") = 960   ' π (pi) U+03C0
+    greekMap("r") = 961   ' ρ (rho) U+03C1
+    greekMap("s") = 963   ' σ (sigma) U+03C3
+    greekMap("t") = 964   ' τ (tau) U+03C4
+    greekMap("u") = 965   ' υ (upsilon) U+03C5
+    greekMap("f") = 966   ' φ (phi) U+03C6
+    greekMap("c") = 967   ' χ (chi) U+03C7
+    greekMap("y") = 968   ' ψ (psi) U+03C8
+    greekMap("w") = 969   ' ω (omega) U+03C9
     
     Set doc = ActiveDocument
     replacementCount = 0
@@ -43,20 +43,19 @@ Sub ReplaceGreekFontWithTimesNewRoman()
     For Each para In doc.Paragraphs
         Set rng = para.Range
         
-        ' Проходим по каждому символу в абзаце (в обратном порядке безопаснее)
+        ' Проходим по каждому символу в абзаце (в обратном порядке)
         For i = rng.Characters.Count To 1 Step -1
             Set character = rng.Characters(i)
             
             ' Проверяем, установлен ли шрифт Greek
             If character.Font.Name = "Greek" Then
-                ' Получаем символ в нижнем регистре для поиска в таблице
                 Dim charLower As String
                 charLower = LCase(character.Text)
                 
                 ' Проверяем наличие в таблице соответствия
                 If greekMap.Exists(charLower) Then
-                    ' Заменяем латинский символ на греческий Unicode
-                    character.Text = greekMap(charLower)
+                    ' Используем ChrW() для правильной вставки Unicode
+                    character.Text = ChrW(greekMap(charLower))
                     character.Font.Name = "Times New Roman"
                     replacementCount = replacementCount + 1
                 End If
@@ -80,7 +79,7 @@ Sub ReplaceGreekFontWithTimesNewRoman()
                         charLower2 = LCase(character.Text)
                         
                         If greekMap.Exists(charLower2) Then
-                            character.Text = greekMap(charLower2)
+                            character.Text = ChrW(greekMap(charLower2))
                             character.Font.Name = "Times New Roman"
                             replacementCount = replacementCount + 1
                         End If
