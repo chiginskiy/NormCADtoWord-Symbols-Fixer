@@ -1,3 +1,14 @@
+' =============================================================================
+' NormCADtoWord-Symbols-Fixer
+' =============================================================================
+' Описание: Замена Greek и Math Light шрифтов на Unicode в Times New Roman
+' Версия: 1.0.0
+' Дата: 15.01.2026
+' Автор: chiginskiy
+' Лицензия: Apache 2.0
+' Репозиторий: https://github.com/chiginskiy/NormCADtoWord-Symbols-Fixer
+' =============================================================================
+
 Sub ReplaceGreekAndMathFontsToTimesNewRoman()
     Dim doc As Document
     Dim para As Paragraph
