@@ -2,11 +2,113 @@
 ' NormCADtoWord-Symbols-Fixer
 ' =============================================================================
 ' Описание: Замена Greek и Math Light шрифтов на Unicode в Times New Roman
-' Версия: 1.0.0
+' Версия: 1.1.0
 ' Дата: 15.01.2026
 ' Автор: chiginskiy
 ' Лицензия: Apache 2.0
 ' Репозиторий: https://github.com/chiginskiy/NormCADtoWord-Symbols-Fixer
+' =============================================================================
+
+' =============================================================================
+' МОДУЛЬ 1: Визуальное выделение проблемных символов
+' =============================================================================
+' Назначение: Находит все символы Greek и Math Light, делает их красными
+'             и полужирными для визуальной проверки перед заменой
+' =============================================================================
+
+Sub HighlightGreekAndMathSymbols()
+    Dim doc As Document
+    Dim para As Paragraph
+    Dim rng As Range
+    Dim character As Range
+    Dim highlightCount As Integer
+    Dim greekCount As Integer
+    Dim mathCount As Integer
+    Dim i As Long
+    
+    Set doc = ActiveDocument
+    highlightCount = 0
+    greekCount = 0
+    mathCount = 0
+    
+    ' Проходим по всем абзацам в документе
+    For Each para In doc.Paragraphs
+        Set rng = para.Range
+        
+        ' Проходим по каждому символу в абзаце
+        For i = 1 To rng.Characters.Count
+            Set character = rng.Characters(i)
+            
+            ' Проверяем шрифт Greek
+            If character.Font.Name = "Greek" Then
+                If character.Text <> "" And character.Text <> vbCr Then
+                    character.Font.Color = wdColorRed
+                    character.Font.Bold = True
+                    highlightCount = highlightCount + 1
+                    greekCount = greekCount + 1
+                End If
+            
+            ' Проверяем шрифт Math Light
+            ElseIf character.Font.Name = "Math Light" Then
+                If character.Text <> "" And character.Text <> vbCr Then
+                    character.Font.Color = wdColorRed
+                    character.Font.Bold = True
+                    highlightCount = highlightCount + 1
+                    mathCount = mathCount + 1
+                End If
+            End If
+        Next i
+    Next para
+    
+    ' Проверяем таблицы
+    Dim tbl As Table
+    Dim cell As Cell
+    Dim cellRng As Range
+    
+    If doc.Tables.Count > 0 Then
+        For Each tbl In doc.Tables
+            For Each cell In tbl.Range.Cells
+                Set cellRng = cell.Range
+                For i = 1 To cellRng.Characters.Count
+                    Set character = cellRng.Characters(i)
+                    
+                    ' Greek
+                    If character.Font.Name = "Greek" Then
+                        If character.Text <> "" And character.Text <> vbCr Then
+                            character.Font.Color = wdColorRed
+                            character.Font.Bold = True
+                            highlightCount = highlightCount + 1
+                            greekCount = greekCount + 1
+                        End If
+                    
+                    ' Math Light
+                    ElseIf character.Font.Name = "Math Light" Then
+                        If character.Text <> "" And character.Text <> vbCr Then
+                            character.Font.Color = wdColorRed
+                            character.Font.Bold = True
+                            highlightCount = highlightCount + 1
+                            mathCount = mathCount + 1
+                        End If
+                    End If
+                Next i
+            Next cell
+        Next tbl
+    End If
+    
+    ' Сообщение о результате
+    MsgBox "Выделение завершено!" & vbCrLf & vbCrLf & _
+           "Всего выделено: " & highlightCount & vbCrLf & _
+           "- Greek: " & greekCount & vbCrLf & _
+           "- Math Light: " & mathCount & vbCrLf & vbCrLf & _
+           "Символы выделены КРАСНЫМ и ПОЛУЖИРНЫМ", vbInformation, "Результат"
+    
+End Sub
+
+' =============================================================================
+' МОДУЛЬ 2: Замена символов на Unicode
+' =============================================================================
+' Назначение: Заменяет символы Greek и Math Light на соответствующие
+'             Unicode-символы в Times New Roman
 ' =============================================================================
 
 Sub ReplaceGreekAndMathFontsToTimesNewRoman()
