@@ -6,6 +6,7 @@ Sub FindGreekFontCharacters()
     Dim greekChars As String
     Dim charCount As Integer
     Dim foundAny As Boolean
+    Dim i As Long
     
     Set doc = ActiveDocument
     charCount = 0
@@ -37,50 +38,46 @@ Sub FindGreekFontCharacters()
     Dim cell As Cell
     Dim cellRng As Range
     
-    For Each tbl In doc.Tables
-        For Each cell In tbl.Range.Cells
-            Set cellRng = cell.Range
-            For i = 1 To cellRng.Characters.Count
-                Set character = cellRng.Characters(i)
-                If character.Font.Name = "Greek" Then
-                    If character.Text <> "" And character.Text <> vbCr Then
-                        greekChars = greekChars & character.Text & " "
-                        charCount = charCount + 1
-                        foundAny = True
+    If doc.Tables.Count > 0 Then
+        For Each tbl In doc.Tables
+            For Each cell In tbl.Range.Cells
+                Set cellRng = cell.Range
+                For i = 1 To cellRng.Characters.Count
+                    Set character = cellRng.Characters(i)
+                    If character.Font.Name = "Greek" Then
+                        If character.Text <> "" And character.Text <> vbCr Then
+                            greekChars = greekChars & character.Text & " "
+                            charCount = charCount + 1
+                            foundAny = True
+                        End If
                     End If
-                End If
-            Next i
-        Next cell
-    Next tbl
+                Next i
+            Next cell
+        Next tbl
+    End If
     
     ' Добавляем результаты в конец документа
-    Dim endPara As Paragraph
-    Set endPara = doc.Range.Paragraphs(doc.Range.Paragraphs.Count).Range
-    endPara.Collapse wdCollapseEnd
+    Dim resultRange As Range
+    Set resultRange = doc.Range
+    resultRange.Collapse wdCollapseEnd
     
-    ' Вставляем перевод строки перед результатами
-    Selection.InsertParagraph
+    ' Вставляем пустую строку
+    resultRange.InsertParagraphAfter
+    resultRange.Collapse wdCollapseEnd
+    resultRange.InsertParagraphAfter
     
     ' Вставляем заголовок
-    Set endPara = doc.Range.Paragraphs(doc.Range.Paragraphs.Count).Range
-    endPara.Collapse wdCollapseEnd
-    endPara.InsertParagraph
-    endPara.Text = "=== РЕЗУЛЬТАТЫ ПОИСКА СИМВОЛОВ С ШРИФТОМ GREEK ==="
-    endPara.Style = wdStyleHeading2
+    resultRange.Text = "=== РЕЗУЛЬТАТЫ ПОИСКА СИМВОЛОВ С ШРИФТОМ GREEK ===" & vbCrLf
+    resultRange.Font.Bold = True
+    resultRange.Font.Size = 14
+    resultRange.Collapse wdCollapseEnd
     
     ' Вставляем результаты
     If foundAny Then
-        Set endPara = doc.Range.Paragraphs(doc.Range.Paragraphs.Count).Range
-        endPara.Collapse wdCollapseEnd
-        endPara.InsertParagraph
-        Set endPara = doc.Range.Paragraphs(doc.Range.Paragraphs.Count).Range
-        endPara.Text = "Найдено символов: " & charCount & vbCrLf & "Символы: " & greekChars
+        resultRange.Text = "Найдено символов: " & charCount & vbCrLf & _
+                          "Символы: " & greekChars & vbCrLf
     Else
-        Set endPara = doc.Range.Paragraphs(doc.Range.Paragraphs.Count).Range
-        endPara.Collapse wdCollapseEnd
-        endPara.InsertParagraph
-        Set endPara = doc.Range.Paragraphs(doc.Range.Paragraphs.Count).Range
-        endPara.Text = "Символов со шрифтом Greek не найдено."
+        resultRange.Text = "Символов со шрифтом Greek не найдено." & vbCrLf
     End If
     
     MsgBox "Поиск завершён! Найдено символов со шрифтом Greek: " & charCount, vbInformation
