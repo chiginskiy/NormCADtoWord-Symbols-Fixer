@@ -43,8 +43,8 @@ Sub ReplaceGreekFontWithTimesNewRoman()
     For Each para In doc.Paragraphs
         Set rng = para.Range
         
-        ' Проходим по каждому символу в абзаце
-        For i = rng.Characters.Count Down To 1
+        ' Проходим по каждому символу в абзаце (в обратном порядке безопаснее)
+        For i = rng.Characters.Count To 1 Step -1
             Set character = rng.Characters(i)
             
             ' Проверяем, установлен ли шрифт Greek
@@ -55,7 +55,7 @@ Sub ReplaceGreekFontWithTimesNewRoman()
                 
                 ' Проверяем наличие в таблице соответствия
                 If greekMap.Exists(charLower) Then
-                    ' Заменяем символ
+                    ' Заменяем латинский символ на греческий Unicode
                     character.Text = greekMap(charLower)
                     character.Font.Name = "Times New Roman"
                     replacementCount = replacementCount + 1
@@ -73,7 +73,7 @@ Sub ReplaceGreekFontWithTimesNewRoman()
         For Each tbl In doc.Tables
             For Each cell In tbl.Range.Cells
                 Set cellRng = cell.Range
-                For i = cellRng.Characters.Count Down To 1
+                For i = cellRng.Characters.Count To 1 Step -1
                     Set character = cellRng.Characters(i)
                     If character.Font.Name = "Greek" Then
                         Dim charLower2 As String
