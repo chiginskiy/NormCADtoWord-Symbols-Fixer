@@ -1,39 +1,70 @@
-Sub FindGreekFontCharacters()
+Sub ReplaceGreekFontWithTimesNewRoman()
     Dim doc As Document
     Dim para As Paragraph
     Dim rng As Range
     Dim character As Range
-    Dim greekChars As String
-    Dim charCount As Integer
-    Dim foundAny As Boolean
+    Dim replacementCount As Integer
     Dim i As Long
     
+    ' Таблица соответствия символов Greek -> греческие символы Times New Roman
+    Dim greekMap As Object
+    Set greekMap = CreateObject("Scripting.Dictionary")
+    
+    ' Соответствие символов
+    greekMap("g") = "γ"  ' gamma
+    greekMap("d") = "δ"  ' delta
+    greekMap("e") = "ε"  ' epsilon
+    greekMap("z") = "ζ"  ' zeta
+    greekMap("h") = "η"  ' eta
+    greekMap("q") = "θ"  ' theta
+    greekMap("i") = "ι"  ' iota
+    greekMap("k") = "κ"  ' kappa
+    greekMap("l") = "λ"  ' lambda
+    greekMap("m") = "μ"  ' mu
+    greekMap("n") = "ν"  ' nu
+    greekMap("x") = "ξ"  ' xi
+    greekMap("o") = "ο"  ' omicron
+    greekMap("p") = "π"  ' pi
+    greekMap("r") = "ρ"  ' rho
+    greekMap("s") = "σ"  ' sigma
+    greekMap("t") = "τ"  ' tau
+    greekMap("u") = "υ"  ' upsilon
+    greekMap("f") = "φ"  ' phi
+    greekMap("c") = "χ"  ' chi
+    greekMap("y") = "ψ"  ' psi
+    greekMap("w") = "ω"  ' omega
+    greekMap("a") = "α"  ' alpha
+    greekMap("b") = "β"  ' beta
+    
     Set doc = ActiveDocument
-    charCount = 0
-    foundAny = False
-    greekChars = ""
+    replacementCount = 0
     
     ' Проходим по всем абзацам в документе
     For Each para In doc.Paragraphs
         Set rng = para.Range
         
         ' Проходим по каждому символу в абзаце
-        For i = 1 To rng.Characters.Count
+        For i = rng.Characters.Count Down To 1
             Set character = rng.Characters(i)
             
             ' Проверяем, установлен ли шрифт Greek
             If character.Font.Name = "Greek" Then
-                ' Добавляем символ в список (избегаем пустых символов)
-                If character.Text <> "" And character.Text <> vbCr Then
-                    greekChars = greekChars & character.Text & " "
-                    charCount = charCount + 1
-                    foundAny = True
+                ' Получаем символ в нижнем регистре для поиска в таблице
+                Dim charLower As String
+                charLower = LCase(character.Text)
+                
+                ' Проверяем наличие в таблице соответствия
+                If greekMap.Exists(charLower) Then
+                    ' Заменяем символ
+                    character.Text = greekMap(charLower)
+                    character.Font.Name = "Times New Roman"
+                    replacementCount = replacementCount + 1
                 End If
             End If
         Next i
     Next para
     
-    ' Также проверяем таблицы, если они есть в документе
+    ' Проверяем таблицы
     Dim tbl As Table
     Dim cell As Cell
     Dim cellRng As Range
@@ -42,13 +73,16 @@ Sub FindGreekFontCharacters()
         For Each tbl In doc.Tables
             For Each cell In tbl.Range.Cells
                 Set cellRng = cell.Range
-                For i = 1 To cellRng.Characters.Count
+                For i = cellRng.Characters.Count Down To 1
                     Set character = cellRng.Characters(i)
                     If character.Font.Name = "Greek" Then
-                        If character.Text <> "" And character.Text <> vbCr Then
-                            greekChars = greekChars & character.Text & " "
-                            charCount = charCount + 1
-                            foundAny = True
+                        Dim charLower2 As String
+                        charLower2 = LCase(character.Text)
+                        
+                        If greekMap.Exists(charLower2) Then
+                            character.Text = greekMap(charLower2)
+                            character.Font.Name = "Times New Roman"
+                            replacementCount = replacementCount + 1
                         End If
                     End If
                 Next i
@@ -56,29 +90,8 @@ Sub FindGreekFontCharacters()
         Next tbl
     End If
     
-    ' Добавляем результаты в конец документа
-    Dim resultRange As Range
-    Set resultRange = doc.Range
-    resultRange.Collapse wdCollapseEnd
+    ' Сообщение о результате
+    MsgBox "Замена завершена!" & vbCrLf & _
+           "Заменено символов: " & replacementCount, vbInformation, "Результат"
     
-    ' Вставляем пустую строку
-    resultRange.InsertParagraphAfter
-    resultRange.Collapse wdCollapseEnd
-    resultRange.InsertParagraphAfter
-    
-    ' Вставляем заголовок
-    resultRange.Text = "=== РЕЗУЛЬТАТЫ ПОИСКА СИМВОЛОВ С ШРИФТОМ GREEK ===" & vbCrLf
-    resultRange.Font.Bold = True
-    resultRange.Font.Size = 14
-    resultRange.Collapse wdCollapseEnd
-    
-    ' Вставляем результаты
-    If foundAny Then
-        resultRange.Text = "Найдено символов: " & charCount & vbCrLf & _
-                          "Символы: " & greekChars & vbCrLf
-    Else
-        resultRange.Text = "Символов со шрифтом Greek не найдено." & vbCrLf
-    End If
-    
-    MsgBox "Поиск завершён! Найдено символов со шрифтом Greek: " & charCount, vbInformation
 End Sub
