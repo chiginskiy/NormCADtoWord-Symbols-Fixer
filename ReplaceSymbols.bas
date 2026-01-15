@@ -2,7 +2,7 @@
 ' NormCADtoWord-Symbols-Fixer
 ' =============================================================================
 ' Описание: Замена Greek и Math Light шрифтов на Unicode в Times New Roman
-' Версия: 1.1.0
+' Версия: 1.2.0
 ' Дата: 15.01.2026
 ' Автор: chiginskiy
 ' Лицензия: Apache 2.0
@@ -228,5 +228,108 @@ Sub ReplaceGreekAndMathFontsToTimesNewRoman()
            "Заменено символов: " & replacementCount & vbCrLf & vbCrLf & _
            "- Greek → греческие буквы" & vbCrLf & _
            "- Math Light → математические символы", vbInformation, "Результат"
+    
+End Sub
+
+' =============================================================================
+' МОДУЛЬ 3: Простая смена шрифта без замены символов
+' =============================================================================
+' Назначение: Меняет шрифт Greek/Math Light на Times New Roman
+'             БЕЗ замены самих символов, сбрасывает форматирование
+' =============================================================================
+
+Sub ChangeFontToTimesNewRomanOnly()
+    Dim doc As Document
+    Dim para As Paragraph
+    Dim rng As Range
+    Dim character As Range
+    Dim changeCount As Integer
+    Dim greekCount As Integer
+    Dim mathCount As Integer
+    Dim i As Long
+    
+    Set doc = ActiveDocument
+    changeCount = 0
+    greekCount = 0
+    mathCount = 0
+    
+    ' Проходим по всем абзацам в документе
+    For Each para In doc.Paragraphs
+        Set rng = para.Range
+        
+        ' Проходим по каждому символу в абзаце
+        For i = 1 To rng.Characters.Count
+            Set character = rng.Characters(i)
+            
+            ' Проверяем шрифт Greek
+            If character.Font.Name = "Greek" Then
+                If character.Text <> "" And character.Text <> vbCr Then
+                    ' Меняем только шрифт и форматирование
+                    character.Font.Name = "Times New Roman"
+                    character.Font.Bold = False
+                    character.Font.Color = wdColorAutomatic  ' Черный
+                    changeCount = changeCount + 1
+                    greekCount = greekCount + 1
+                End If
+            
+            ' Проверяем шрифт Math Light
+            ElseIf character.Font.Name = "Math Light" Then
+                If character.Text <> "" And character.Text <> vbCr Then
+                    ' Меняем только шрифт и форматирование
+                    character.Font.Name = "Times New Roman"
+                    character.Font.Bold = False
+                    character.Font.Color = wdColorAutomatic  ' Черный
+                    changeCount = changeCount + 1
+                    mathCount = mathCount + 1
+                End If
+            End If
+        Next i
+    Next para
+    
+    ' Проверяем таблицы
+    Dim tbl As Table
+    Dim cell As Cell
+    Dim cellRng As Range
+    
+    If doc.Tables.Count > 0 Then
+        For Each tbl In doc.Tables
+            For Each cell In tbl.Range.Cells
+                Set cellRng = cell.Range
+                For i = 1 To cellRng.Characters.Count
+                    Set character = cellRng.Characters(i)
+                    
+                    ' Greek
+                    If character.Font.Name = "Greek" Then
+                        If character.Text <> "" And character.Text <> vbCr Then
+                            character.Font.Name = "Times New Roman"
+                            character.Font.Bold = False
+                            character.Font.Color = wdColorAutomatic
+                            changeCount = changeCount + 1
+                            greekCount = greekCount + 1
+                        End If
+                    
+                    ' Math Light
+                    ElseIf character.Font.Name = "Math Light" Then
+                        If character.Text <> "" And character.Text <> vbCr Then
+                            character.Font.Name = "Times New Roman"
+                            character.Font.Bold = False
+                            character.Font.Color = wdColorAutomatic
+                            changeCount = changeCount + 1
+                            mathCount = mathCount + 1
+                        End If
+                    End If
+                Next i
+            Next cell
+        Next tbl
+    End If
+    
+    ' Сообщение о результате
+    MsgBox "Смена шрифта завершена!" & vbCrLf & vbCrLf & _
+           "Всего изменено: " & changeCount & vbCrLf & _
+           "- Greek: " & greekCount & vbCrLf & _
+           "- Math Light: " & mathCount & vbCrLf & vbCrLf & _
+           "Шрифт изменён на Times New Roman" & vbCrLf & _
+           "Форматирование: обычное, черное" & vbCrLf & vbCrLf & _
+           "⚠️ ВНИМАНИЕ: Символы НЕ заменены на Unicode!", vbInformation, "Результат"
     
 End Sub
