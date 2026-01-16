@@ -2,7 +2,7 @@
 ' NormCADtoWord-Symbols-Fixer
 ' =============================================================================
 ' Описание: Замена Greek и Math Light шрифтов на Unicode в Times New Roman
-' Версия: 1.3.0
+' Версия: 1.4.0
 ' Дата: 16.01.2026
 ' Автор: chiginskiy
 ' Лицензия: Apache 2.0
@@ -345,5 +345,76 @@ Sub ChangeFontToTimesNewRomanOnly()
            "Шрифт изменён на Times New Roman" & vbCrLf & _
            "Форматирование: обычное, черное" & vbCrLf & vbCrLf & _
            "⚠️ ВНИМАНИЕ: Символы НЕ заменены на Unicode!", vbInformation, "Результат"
+    
+End Sub
+
+' =============================================================================
+' МОДУЛЬ 4: Очистка пунктуации и пробелов
+' =============================================================================
+' Назначение: Удаляет лишние пробелы перед знаками препинания и двойные пробелы.
+'             Выполняет замены:
+'             - "  " -> " " (два пробела -> один)
+'             - " ;" -> ";" (пробел+точка с запятой -> точка с запятой)
+'             - " :" -> ":" (пробел+двоеточие -> двоеточие)
+'             - " ." -> "." (пробел+точка -> точка)
+'             - " ," -> "," (пробел+запятая -> запятая)
+' =============================================================================
+
+Sub CleanupPunctuationAndSpaces()
+    Dim doc As Document
+    Dim rng As Range
+    Dim findObj As Find
+    Dim cleanupCount As Integer
+    
+    Set doc = ActiveDocument
+    Set rng = doc.Content
+    Set findObj = rng.Find
+    cleanupCount = 0
+    
+    ' Настройка параметров поиска
+    findObj.ClearFormatting
+    findObj.Replacement.ClearFormatting
+    findObj.Forward = True
+    findObj.Wrap = wdFindContinue
+    findObj.Format = False
+    findObj.MatchCase = False
+    findObj.MatchWholeWord = False
+    findObj.MatchWildcards = False
+    findObj.MatchSoundsLike = False
+    findObj.MatchAllWordForms = False
+    
+    ' 1. Замена двойных пробелов на одинарные
+    ' Выполняем в цикле, чтобы убрать тройные и более пробелы
+    findObj.Text = "  "
+    findObj.Replacement.Text = " "
+    
+    Do While findObj.Execute(Replace:=wdReplaceAll)
+        ' Продолжаем пока есть двойные пробелы
+        cleanupCount = cleanupCount + 1 ' Счетчик циклов, а не замен
+    Loop
+    
+    ' 2. Замена пробел + точка с запятой -> точка с запятой
+    findObj.Text = " ;"
+    findObj.Replacement.Text = ";"
+    findObj.Execute Replace:=wdReplaceAll
+    
+    ' 3. Замена пробел + двоеточие -> двоеточие
+    findObj.Text = " :"
+    findObj.Replacement.Text = ":"
+    findObj.Execute Replace:=wdReplaceAll
+    
+    ' 4. Замена пробел + точка -> точка
+    findObj.Text = " ."
+    findObj.Replacement.Text = "."
+    findObj.Execute Replace:=wdReplaceAll
+    
+    ' 5. Замена пробел + запятая -> запятая
+    findObj.Text = " ,"
+    findObj.Replacement.Text = ","
+    findObj.Execute Replace:=wdReplaceAll
+    
+    MsgBox "Очистка пунктуации завершена!" & vbCrLf & _
+           "Удалены двойные пробелы и лишние отступы перед знаками препинания.", _
+           vbInformation, "Результат очистки"
     
 End Sub
