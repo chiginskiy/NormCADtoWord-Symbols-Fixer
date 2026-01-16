@@ -2,8 +2,8 @@
 ' NormCADtoWord-Symbols-Fixer
 ' =============================================================================
 ' Описание: Замена Greek и Math Light шрифтов на Unicode в Times New Roman
-' Версия: 1.2.0
-' Дата: 15.01.2026
+' Версия: 1.3.0
+' Дата: 16.01.2026
 ' Автор: chiginskiy
 ' Лицензия: Apache 2.0
 ' Репозиторий: https://github.com/chiginskiy/NormCADtoWord-Symbols-Fixer
@@ -105,10 +105,11 @@ Sub HighlightGreekAndMathSymbols()
 End Sub
 
 ' =============================================================================
-' МОДУЛЬ 2: Замена символов на Unicode
+' МОДУЛЬ 2: Замена символов на Unicode (с исправлением форматирования)
 ' =============================================================================
 ' Назначение: Заменяет символы Greek и Math Light на соответствующие
-'             Unicode-символы в Times New Roman
+'             Unicode-символы в Times New Roman.
+'             Сбрасывает форматирование (цвет черный, не полужирный)
 ' =============================================================================
 
 Sub ReplaceGreekAndMathFontsToTimesNewRoman()
@@ -174,6 +175,9 @@ Sub ReplaceGreekAndMathFontsToTimesNewRoman()
                 If greekMap.Exists(charLower) Then
                     character.Text = ChrW(greekMap(charLower))
                     character.Font.Name = "Times New Roman"
+                    ' Сброс форматирования после визуальной проверки
+                    character.Font.Color = wdColorAutomatic  ' Черный
+                    character.Font.Bold = False              ' Не полужирный
                     replacementCount = replacementCount + 1
                 End If
             
@@ -182,6 +186,9 @@ Sub ReplaceGreekAndMathFontsToTimesNewRoman()
                 If mathMap.Exists(character.Text) Then
                     character.Text = ChrW(mathMap(character.Text))
                     character.Font.Name = "Times New Roman"
+                    ' Сброс форматирования после визуальной проверки
+                    character.Font.Color = wdColorAutomatic  ' Черный
+                    character.Font.Bold = False              ' Не полужирный
                     replacementCount = replacementCount + 1
                 End If
             End If
@@ -207,6 +214,9 @@ Sub ReplaceGreekAndMathFontsToTimesNewRoman()
                         If greekMap.Exists(charLower2) Then
                             character.Text = ChrW(greekMap(charLower2))
                             character.Font.Name = "Times New Roman"
+                            ' Сброс форматирования
+                            character.Font.Color = wdColorAutomatic
+                            character.Font.Bold = False
                             replacementCount = replacementCount + 1
                         End If
                     
@@ -215,6 +225,9 @@ Sub ReplaceGreekAndMathFontsToTimesNewRoman()
                         If mathMap.Exists(character.Text) Then
                             character.Text = ChrW(mathMap(character.Text))
                             character.Font.Name = "Times New Roman"
+                            ' Сброс форматирования
+                            character.Font.Color = wdColorAutomatic
+                            character.Font.Bold = False
                             replacementCount = replacementCount + 1
                         End If
                     End If
@@ -227,7 +240,8 @@ Sub ReplaceGreekAndMathFontsToTimesNewRoman()
     MsgBox "Замена завершена!" & vbCrLf & _
            "Заменено символов: " & replacementCount & vbCrLf & vbCrLf & _
            "- Greek → греческие буквы" & vbCrLf & _
-           "- Math Light → математические символы", vbInformation, "Результат"
+           "- Math Light → математические символы" & vbCrLf & _
+           "- Форматирование сброшено (черный, обычный)", vbInformation, "Результат"
     
 End Sub
 
